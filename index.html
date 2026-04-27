@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Forexio - Premium Realtime Signals</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons (Phosphor Icons & FontAwesome) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6', // Premium Teal
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        },
+                        dark: '#0f172a',
+                        card: '#ffffff'
+                    },
+                    borderRadius: {
+                        'premium': '24px',
+                    },
+                    boxShadow: {
+                        'premium': '0 8px 30px rgba(0, 0, 0, 0.04)',
+                        'glow': '0 0 20px rgba(20, 184, 166, 0.3)',
+                        'glow-red': '0 0 20px rgba(239, 68, 68, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS for Native Feel & Animations -->
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #000000;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
+        }
+
+        /* Hide Scrollbar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Shimmer Loading Effect */
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+            background-color: #f1f5f9;
+        }
+        .shimmer::after {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            transform: translateX(-100%);
+            background-image: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0,
+                rgba(255, 255, 255, 0.6) 20%,
+                rgba(255, 255, 255, 0.8) 60%,
+                rgba(255, 255, 255, 0)
+            );
+            animation: shimmer 2s infinite;
+            content: '';
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        /* Pulse Glow Animation */
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        .animate-pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+
+        /* Page Transitions */
+        .page-enter {
+            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUpFade {
+            0% { opacity: 0; transform: translateY(15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* Pull to refresh native spacing */
+        main {
+            min-height: 100vh;
+            padding-bottom: 90px; /* Space for bottom nav */
+            padding-top: 70px; /* Space for top header */
+        }
+
+        /* Splash Screen */
+        #splash {
+            transition: opacity 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Splash Screen -->
+    <div id="splash" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
+        <div class="relative">
+            <img src="https://www.appcreator24.com/srv/imgs/gen/4005906_ico.png?v=3" alt="Forexio Logo" class="w-24 h-24 rounded-[24px] shadow-premium animate-bounce">
+            <div class="absolute -inset-4 border-2 border-brand-500 rounded-[32px] animate-ping opacity-20"></div>
+        </div>
+        <h1 class="mt-6 text-3xl font-display font-bold text-gray-900 tracking-tight">Forexio</h1>
+        <p class="mt-2 text-sm text-gray-500 font-medium">Premium Realtime Signals</p>
+        <div class="absolute bottom-12 w-48 h-1 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full bg-brand-500 w-1/2 animate-[shimmer_1s_infinite]"></div>
+        </div>
+    </div>
+
+    <!-- Sticky Top Header -->
+    <header class="fixed top-0 w-full glass-panel z-40 px-5 py-3 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-3">
+            <img src="https://www.appcreator24.com/srv/imgs/gen/4005906_ico.png?v=3" class="w-10 h-10 rounded-xl shadow-sm border border-gray-100" alt="Logo">
+            <h1 class="text-xl font-display font-bold text-gray-900 tracking-tight">Forexio</h1>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-100 shadow-sm" id="marketStatusIndicator">
+            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span class="text-xs font-semibold text-green-700 tracking-wide">Live Market</span>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="appContainer" class="hidden">
+
+        <!-- ==================== TAB: SIGNALS ==================== -->
+        <main id="tab-signals" class="page-enter px-4">
+            
+            <!-- Type Switcher -->
+            <div class="flex p-1 bg-gray-100 rounded-[20px] mb-6 mt-4">
+                <button onclick="switchSignalType('binary')" id="btn-sig-binary" class="flex-1 py-2.5 text-sm font-semibold rounded-[16px] bg-white shadow-sm text-gray-900 transition-all">Binary</button>
+                <button onclick="switchSignalType('forex')" id="btn-sig-forex" class="flex-1 py-2.5 text-sm font-semibold rounded-[16px] text-gray-500 transition-all">Forex</button>
+            </div>
+
+            <!-- BINARY SIGNALS AREA -->
+            <div id="area-binary-signals" class="block">
+                
+                <!-- Session Schedule Cards (Horizontal Swipe) -->
+                <div id="sessionContainer" class="mb-8">
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <h2 class="text-lg font-display font-bold text-gray-900">Today's Sessions</h2>
+                        <span class="text-xs font-medium text-brand-600 bg-brand-50 px-2 py-1 rounded-full"><i class="ph-fill ph-clock mr-1"></i>Live Clock</span>
+                    </div>
+                    <div class="flex overflow-x-auto gap-4 hide-scrollbar pb-4 -mx-4 px-4">
+                        <!-- Morning Session -->
+                        <div class="min-w-[280px] bg-gradient-to-br from-dark to-slate-800 rounded-premium p-5 text-white shadow-premium relative overflow-hidden">
+                            <div class="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                            <h3 class="font-display font-bold text-lg mb-1">Morning Session</h3>
+                            <p class="text-slate-300 text-sm mb-4"><i class="ph ph-calendar-blank align-middle mr-1"></i> 04:00 AM</p>
+                            <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10 flex justify-between items-center">
+                                <span class="text-xs text-slate-300">Starts in</span>
+                                <span class="font-mono font-bold text-brand-100" id="countdown-morning">--:--:--</span>
+                            </div>
+                        </div>
+                        <!-- Night Session -->
+                        <div class="min-w-[280px] bg-gradient-to-br from-brand-600 to-brand-900 rounded-premium p-5 text-white shadow-premium relative overflow-hidden">
+                            <div class="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                            <h3 class="font-display font-bold text-lg mb-1">Night Session</h3>
+                            <p class="text-brand-100 text-sm mb-4"><i class="ph ph-calendar-blank align-middle mr-1"></i> 05:00 PM</p>
+                            <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10 flex justify-between items-center">
+                                <span class="text-xs text-brand-100">Starts in</span>
+                                <span class="font-mono font-bold text-white" id="countdown-night">--:--:--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Signal Engine -->
+                <div id="liveSignalContainer">
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <h2 class="text-lg font-display font-bold text-gray-900 flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div> Live Action
+                        </h2>
+                    </div>
+
+                    <!-- Dynamic Render Target for Live Signal -->
+                    <div id="binaryLiveBox">
+                        <!-- Default Shimmer / Waiting State -->
+                        <div class="bg-card rounded-premium p-6 shadow-premium border border-gray-100 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 shimmer">
+                                <i class="ph ph-radar text-2xl text-gray-300"></i>
+                            </div>
+                            <h3 class="font-display font-semibold text-gray-700">Waiting for next signal...</h3>
+                            <p class="text-sm text-gray-400 mt-2 max-w-[200px]">Admin will post the next binary signal here instantly.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOREX SIGNALS AREA -->
+            <div id="area-forex-signals" class="hidden">
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <h2 class="text-lg font-display font-bold text-gray-900">Active Trades</h2>
+                </div>
+                
+                <div id="forexTradesBox" class="flex flex-col gap-4">
+                    <!-- Forex Cards will render here via JS -->
+                    <!-- Skeleton Loader initially -->
+                    <div class="bg-card rounded-premium overflow-hidden shadow-premium border border-gray-100">
+                        <div class="h-32 w-full shimmer"></div>
+                        <div class="p-5">
+                            <div class="h-6 w-1/3 rounded-md shimmer mb-4"></div>
+                            <div class="flex justify-between">
+                                <div class="h-10 w-20 rounded-xl shimmer"></div>
+                                <div class="h-10 w-20 rounded-xl shimmer"></div>
+                                <div class="h-10 w-20 rounded-xl shimmer"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ==================== TAB: HISTORY ==================== -->
+        <main id="tab-history" class="hidden page-enter px-4">
+            <h1 class="text-2xl font-display font-bold text-gray-900 mb-4 px-1">Signal History</h1>
+            
+            <!-- Type Switcher -->
+            <div class="flex p-1 bg-gray-100 rounded-[20px] mb-6">
+                <button onclick="switchHistoryType('binary')" id="btn-hist-binary" class="flex-1 py-2.5 text-sm font-semibold rounded-[16px] bg-white shadow-sm text-gray-900 transition-all">Binary</button>
+                <button onclick="switchHistoryType('forex')" id="btn-hist-forex" class="flex-1 py-2.5 text-sm font-semibold rounded-[16px] text-gray-500 transition-all">Forex</button>
+            </div>
+
+            <div id="history-binary-list" class="flex flex-col gap-3">
+                <!-- Data populated by Firebase -->
+            </div>
+
+            <div id="history-forex-list" class="hidden flex flex-col gap-4">
+                <!-- Data populated by Firebase -->
+            </div>
+        </main>
+
+        <!-- ==================== TAB: ABOUT ==================== -->
+        <main id="tab-about" class="hidden page-enter px-4">
+            
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-b from-brand-900 to-dark rounded-premium p-6 text-center text-white shadow-premium relative overflow-hidden mb-6">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-brand-500 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+                <img src="https://www.appcreator24.com/srv/imgs/gen/4005906_ico.png?v=3" class="w-16 h-16 mx-auto rounded-2xl shadow-lg border-2 border-white/20 mb-4 relative z-10" alt="Logo">
+                <h2 class="text-xl font-display font-bold leading-tight mb-2 relative z-10">Want learn forex, binary & crypto trading free?</h2>
+                <p class="text-sm text-gray-300 mb-6 relative z-10">Experience the ultimate ecosystem in our native Android app.</p>
+                <a href="https://apk.e-droid.net/apk/app4005906-vgx4bh.apk?v=3" class="block w-full py-3.5 bg-brand-500 hover:bg-brand-600 transition-colors rounded-xl font-semibold text-white shadow-lg shadow-brand-500/30 relative z-10">
+                    <i class="ph-bold ph-download-simple mr-2"></i>Download App
+                </a>
+            </div>
+
+            <!-- Premium Menu Cards -->
+            <div class="flex flex-col gap-3">
+                <a href="https://t.me/forexio_official" class="bg-card rounded-premium p-4 flex items-center justify-between shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 text-xl">
+                            <i class="fa-brands fa-telegram"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-semibold text-gray-900 text-sm">Join Official Channel</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Free lifetime updates</p>
+                        </div>
+                    </div>
+                    <i class="ph-bold ph-caret-right text-gray-300"></i>
+                </a>
+
+                <div class="bg-card rounded-premium p-4 flex items-center justify-between shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 text-xl">
+                            <i class="ph-fill ph-headset"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-semibold text-gray-900 text-sm">Any Issue Contact Us</h3>
+                            <p class="text-xs text-gray-500 mt-0.5 font-mono">@batriiix</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="toggleNoticeModal(true)" class="w-full bg-card rounded-premium p-4 flex items-center justify-between shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-left">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 text-xl">
+                            <i class="ph-fill ph-warning-circle"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-semibold text-gray-900 text-sm">Disclaimer & Notice</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Read before trading</p>
+                        </div>
+                    </div>
+                    <i class="ph-bold ph-caret-right text-gray-300"></i>
+                </button>
+            </div>
+
+            <!-- Floating Community Button (Bottom Left within About context) -->
+            <button onclick="toggleCommunityPage(true)" class="fixed bottom-[100px] left-4 bg-dark text-white rounded-full pl-3 pr-5 py-3 shadow-premium flex items-center gap-2 z-30 animate-bounce hover:scale-105 transition-transform">
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    <i class="ph-fill ph-users-three text-lg"></i>
+                </div>
+                <span class="text-sm font-semibold">Community</span>
+            </button>
+        </main>
+
+        <!-- ==================== STICKY BOTTOM NAVIGATION ==================== -->
+        <nav class="fixed bottom-0 w-full glass-panel pb-safe z-40 border-t border-gray-100">
+            <div class="flex justify-around items-center px-2 py-3">
+                <button onclick="switchTab('signals')" id="nav-signals" class="flex flex-col items-center gap-1 w-20 text-brand-500 transition-colors">
+                    <i class="ph-fill ph-trend-up text-2xl"></i>
+                    <span class="text-[10px] font-semibold">Signals</span>
+                </button>
+                <button onclick="switchTab('history')" id="nav-history" class="flex flex-col items-center gap-1 w-20 text-gray-400 transition-colors">
+                    <i class="ph-fill ph-clock-counter-clockwise text-2xl"></i>
+                    <span class="text-[10px] font-semibold">History</span>
+                </button>
+                <button onclick="switchTab('about')" id="nav-about" class="flex flex-col items-center gap-1 w-20 text-gray-400 transition-colors">
+                    <i class="ph-fill ph-info text-2xl"></i>
+                    <span class="text-[10px] font-semibold">About Us</span>
+                </button>
+            </div>
+        </nav>
+
+    </div>
+
+    <!-- ==================== OVERLAYS & MODALS ==================== -->
+
+    <!-- Notice Modal -->
+    <div id="noticeModal" class="fixed inset-0 z-50 bg-gray-900/40 backdrop-blur-sm hidden flex items-center justify-center px-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-[32px] p-6 shadow-2xl max-w-sm w-full transform scale-95 transition-transform duration-300" id="noticeModalCard">
+            <div class="flex justify-between items-start mb-4">
+                <div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-2xl">
+                    <i class="ph-fill ph-warning"></i>
+                </div>
+                <button onclick="toggleNoticeModal(false)" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            <h3 class="font-display font-bold text-xl text-gray-900 mb-3">Important Notice</h3>
+            <p class="text-sm text-gray-600 leading-relaxed max-h-[50vh] overflow-y-auto hide-scrollbar" id="noticeText">
+                Welcome to Forexio — we provide free forex and binary trading signals for informational and awareness purposes only. Our signals are meant to share market insights and possible trade opportunities. Disclaimer: Forexio only provides signals and market analysis. We do not recommend, advise, or force anyone to invest or trade using our signals. Any decision to use these signals is entirely your own responsibility. Trading involves risk, and users should trade carefully with proper risk management. Thank you for being part of Forexio.
+            </p>
+            <button onclick="toggleNoticeModal(false)" class="w-full mt-6 py-3.5 bg-dark text-white rounded-xl font-semibold shadow-lg">I Understand</button>
+        </div>
+    </div>
+
+    <!-- Community Updates Full Page Overlay -->
+    <div id="communityPage" class="fixed inset-0 z-50 bg-gray-50 hidden flex-col transform translate-x-full transition-transform duration-300">
+        <!-- Header -->
+        <header class="bg-white px-4 py-4 flex items-center gap-4 shadow-sm z-10 border-b border-gray-100">
+            <button onclick="toggleCommunityPage(false)" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-800">
+                <i class="ph-bold ph-arrow-left text-xl"></i>
+            </button>
+            <h1 class="text-xl font-display font-bold text-gray-900">Community News</h1>
+        </header>
+        <!-- Feed -->
+        <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-5 hide-scrollbar pb-10" id="communityFeedBox">
+            <!-- Skeleton items -->
+            <div class="bg-white rounded-premium p-4 shadow-sm border border-gray-100">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full shimmer"></div>
+                    <div>
+                        <div class="w-24 h-4 rounded shimmer mb-1"></div>
+                        <div class="w-16 h-3 rounded shimmer"></div>
+                    </div>
+                </div>
+                <div class="w-full h-40 rounded-xl shimmer mb-4"></div>
+                <div class="w-full h-4 rounded shimmer mb-2"></div>
+                <div class="w-2/3 h-4 rounded shimmer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Overlay (Top) -->
+    <div id="toastContainer" class="fixed top-20 left-0 right-0 z-50 flex flex-col items-center gap-2 pointer-events-none px-4"></div>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // Firebase Configuration (Exact config provided)
+        const firebaseConfig = {
+            apiKey: "AIzaSyArhWvIJqOA0DDmYqaBPCiIiQYBt7VcBg0",
+            authDomain: "fundmatrix-17e53.firebaseapp.com",
+            databaseURL: "https://fundmatrix-17e53-default-rtdb.firebaseio.com",
+            projectId: "fundmatrix-17e53",
+            storageBucket: "fundmatrix-17e53.firebasestorage.app",
+            messagingSenderId: "406656369467",
+            appId: "1:406656369467:android:97cae95050c9a872206d1e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // UI Initialization & Splash Screen
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash');
+                splash.style.opacity = '0';
+                document.getElementById('appContainer').classList.remove('hidden');
+                setTimeout(() => splash.remove(), 500);
+            }, 1500); // Premium brief loading state
+        });
+
+        // ------------------ TAB NAVIGATION LOGIC ------------------
+        window.switchTab = (tabId) => {
+            // Hide all tabs
+            ['signals', 'history', 'about'].forEach(id => {
+                document.getElementById(`tab-${id}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${id}`);
+                navBtn.classList.remove('text-brand-500');
+                navBtn.classList.add('text-gray-400');
+                // Remove filled icon state, add outline (simplistic simulation via phosphor class swapping)
+                navBtn.querySelector('i').classList.replace('ph-fill', 'ph');
+            });
+
+            // Show active
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            activeBtn.classList.remove('text-gray-400');
+            activeBtn.classList.add('text-brand-500');
+            activeBtn.querySelector('i').classList.replace('ph', 'ph-fill');
+
+            // Force re-trigger of CSS animation
+            const tabContent = document.getElementById(`tab-${tabId}`);
+            tabContent.classList.remove('page-enter');
+            void tabContent.offsetWidth; 
+            tabContent.classList.add('page-enter');
+        };
+
+        window.switchSignalType = (type) => {
+            const isBinary = type === 'binary';
+            document.getElementById('area-binary-signals').style.display = isBinary ? 'block' : 'none';
+            document.getElementById('area-forex-signals').style.display = isBinary ? 'none' : 'block';
+            
+            // Buttons UI
+            const btnBin = document.getElementById('btn-sig-binary');
+            const btnFor = document.getElementById('btn-sig-forex');
+            
+            if (isBinary) {
+                btnBin.className = "flex-1 py-2.5 text-sm font-semibold rounded-[16px] bg-white shadow-sm text-gray-900 transition-all";
+                btnFor.className = "flex-1 py-2.5 text-sm font-semibold rounded-[16px] text-gray-500 transition-all";
+            } else {
+                btnFor.className = "flex-1 py-2.5 text-sm font-semibold rounded-[16px] bg-white shadow-sm text-gray-900 transition-all";
+                btnBin.className = "flex-1 py-2.5 text-sm font-semibold rounded-[16px] text-gray-500 transition-all";
+            }
+        };
+
+        window.switchHistoryType = (type) => {
+            const isBinary = type === 'binary';
+            document.getElementById('history-binary-list').style.display = isBinary ? 'flex' : 'none';
+            document.getElementById('history-forex-list').style.display = isBinary ? 'none' : 'flex';
+            
+            const btnBin = document.getElementById('btn-hist-binary');
+            const btnFor = document.getElementById('btn-hist-forex');
+            
+            if (isBinary) {
+                btnBin.className = "flex-1 py-2.5 text-sm font-semibold rounded-[16px] bg-white shadow-sm text-gray-900 transition-all";
+                btnFor.className = "flex-1 py-2.5 text-sm font-semibold rounded-[16px] text-gray-500 transition-all";
+            } else {
+                btnFor.className = "flex-1 py-2.5 text-sm font-semibold rounded-[16px] bg-white shadow-sm text-gray-900 transition-all";
+                btnBin.className = "flex-1 py-2.5 text-sm font-semibold rounded-[16px] text-gray-500 transition-all";
+            }
+        };
+
+        // ------------------ MODALS & OVERLAYS ------------------
+        window.toggleNoticeModal = (show) => {
+            const modal = document.getElementById('noticeModal');
+            const card = document.getElementById('noticeModalCard');
+            if (show) {
+                modal.classList.remove('hidden');
+                // Trigger reflow
+                void modal.offsetWidth;
+                modal.classList.remove('opacity-0');
+                card.classList.remove('scale-95');
+            } else {
+                modal.classList.add('opacity-0');
+                card.classList.add('scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        };
+
+        window.toggleCommunityPage = (show) => {
+            const page = document.getElementById('communityPage');
+            if (show) {
+                page.classList.remove('hidden');
+                void page.offsetWidth;
+                page.classList.remove('translate-x-full');
+            } else {
+                page.classList.add('translate-x-full');
+                setTimeout(() => page.classList.add('hidden'), 300);
+            }
+        };
+
+        const showToast = (message, isSuccess = true) => {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg transform transition-all duration-300 translate-y-[-20px] opacity-0 ${isSuccess ? 'bg-gray-900 text-white' : 'bg-red-500 text-white'}`;
+            toast.innerHTML = `<i class="ph-fill ${isSuccess ? 'ph-check-circle text-brand-500' : 'ph-warning'} text-xl"></i><span class="text-sm font-medium">${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-[-20px]', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-20px]');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        // ------------------ COUNTDOWN CLOCK LOGIC ------------------
+        const updateCountdowns = () => {
+            const now = new Date();
+            // Mocking target times for UI: Morning 04:00 AM, Night 05:00 PM next occurrence
+            const formatTime = (diffMs) => {
+                if(diffMs < 0) return "00:00:00";
+                const h = Math.floor(diffMs / (1000 * 60 * 60)).toString().padStart(2, '0');
+                const m = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                const s = Math.floor((diffMs % (1000 * 60)) / 1000).toString().padStart(2, '0');
+                return `${h}:${m}:${s}`;
+            };
+
+            let morningTarget = new Date(now);
+            morningTarget.setHours(4, 0, 0, 0);
+            if(now > morningTarget) morningTarget.setDate(morningTarget.getDate() + 1);
+
+            let nightTarget = new Date(now);
+            nightTarget.setHours(17, 0, 0, 0);
+            if(now > nightTarget) nightTarget.setDate(nightTarget.getDate() + 1);
+
+            document.getElementById('countdown-morning').innerText = formatTime(morningTarget - now);
+            document.getElementById('countdown-night').innerText = formatTime(nightTarget - now);
+        };
+        setInterval(updateCountdowns, 1000);
+        updateCountdowns();
+
+        // ------------------ FIREBASE REALTIME LISTENERS ------------------
+        // Note: We build highly resilient UI functions that fall back to elegant placeholders if DB is empty
+
+        // 1. Session Status (Hides countdowns if active)
+        onValue(ref(db, 'sessions/binary'), (snapshot) => {
+            const data = snapshot.val() || { active: false };
+            const sessionContainer = document.getElementById('sessionContainer');
+            if (data.active) {
+                sessionContainer.style.display = 'none'; // Auto hide when live
+            } else {
+                sessionContainer.style.display = 'block';
+            }
+        });
+
+        // 2. Binary Live Signals
+        onValue(ref(db, 'binary_live_signals/active'), (snapshot) => {
+            const data = snapshot.val();
+            const box = document.getElementById('binaryLiveBox');
+            
+            if (data && data.status === 'live') {
+                // New signal behavior: flash animation logic handled by CSS classes
+                const isBuy = (data.direction || 'BUY').toUpperCase() === 'CALL' || (data.direction || 'BUY').toUpperCase() === 'BUY';
+                const colorTheme = isBuy ? 'green' : 'red';
+                const shadowGlow = isBuy ? 'shadow-[0_0_20px_rgba(34,197,94,0.3)]' : 'shadow-[0_0_20px_rgba(239,68,68,0.3)]';
+                
+                box.innerHTML = `
+                    <div class="bg-card rounded-premium p-6 border-2 border-${colorTheme}-500 ${shadowGlow} relative overflow-hidden transform transition-all animate-pulse-glow">
+                        <div class="absolute top-0 right-0 bg-${colorTheme}-500 text-white text-xs font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider">
+                            Active Signal
+                        </div>
+                        <div class="flex items-center gap-4 mb-5 mt-2">
+                            <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-100 shadow-sm">
+                                <i class="ph-bold ph-currency-circle-dollar text-2xl text-gray-700"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-display font-bold text-gray-900">${data.pair || 'EUR/USD'}</h3>
+                                <p class="text-sm text-gray-500"><i class="ph ph-clock mr-1"></i> ${data.time || '10:00 AM'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 mb-5">
+                            <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">Duration</p>
+                                <p class="font-display font-semibold text-gray-900">${data.duration || '5 Mins'}</p>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">Trade Amt</p>
+                                <p class="font-display font-semibold text-gray-900">${data.amount || '1% - 2%'}</p>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full py-4 bg-${colorTheme}-500 text-white rounded-xl font-display font-bold text-xl uppercase tracking-widest shadow-lg shadow-${colorTheme}-500/40">
+                            ${isBuy ? 'BUY (CALL)' : 'SELL (PUT)'}
+                        </button>
+                    </div>
+                `;
+                showToast("New Signal Received!", true);
+            } else if (data && data.status === 'result') {
+                // Show result briefly before clearing
+                const isWin = data.result === 'WIN';
+                box.innerHTML = `
+                    <div class="bg-card rounded-premium p-6 border border-gray-100 shadow-premium relative text-center">
+                        <div class="w-20 h-20 mx-auto bg-${isWin ? 'green' : 'red'}-50 rounded-full flex items-center justify-center mb-4">
+                            <i class="ph-fill ph-${isWin ? 'check-circle text-green-500' : 'x-circle text-red-500'} text-4xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-display font-bold text-${isWin ? 'green' : 'red'}-600 uppercase tracking-widest">${isWin ? 'WIN' : 'LOSS'}</h3>
+                        <p class="text-gray-500 text-sm mt-2">${data.pair || ''} closed</p>
+                    </div>
+                `;
+            } else {
+                // Waiting State
+                box.innerHTML = `
+                    <div class="bg-card rounded-premium p-6 shadow-premium border border-gray-100 flex flex-col items-center justify-center text-center relative overflow-hidden h-[280px]">
+                        <div class="absolute inset-0 shimmer opacity-20 pointer-events-none"></div>
+                        <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4 relative z-10 border border-gray-100 shadow-sm">
+                            <i class="ph-fill ph-radar text-3xl text-brand-500 animate-[spin_3s_linear_infinite]"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-gray-800 text-lg relative z-10">Waiting For Next Signal</h3>
+                        <p class="text-sm text-gray-500 mt-2 max-w-[200px] relative z-10">Stay alert, admin will push the signal shortly.</p>
+                    </div>
+                `;
+            }
+        });
+
+        // 3. Forex Live Signals
+        onValue(ref(db, 'forex_signals/active'), (snapshot) => {
+            const data = snapshot.val();
+            const box = document.getElementById('forexTradesBox');
+            
+            if (!data || Object.keys(data).length === 0) {
+                box.innerHTML = `
+                    <div class="bg-gray-50 border border-dashed border-gray-200 rounded-premium p-8 text-center">
+                        <i class="ph-fill ph-chart-line-up text-4xl text-gray-300 mb-3"></i>
+                        <h3 class="font-display font-semibold text-gray-600">No Active Trades</h3>
+                        <p class="text-xs text-gray-400 mt-1">Market is currently volatile or waiting for setup.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            Object.values(data).forEach(trade => {
+                const typeColor = (trade.type || 'BUY').toUpperCase() === 'BUY' ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50';
+                
+                html += `
+                <div class="bg-card rounded-premium overflow-hidden shadow-premium border border-gray-100">
+                    <div class="relative h-40 bg-gray-100">
+                        <img src="${trade.image || 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=1000'}" class="w-full h-full object-cover" alt="Chart">
+                        <div class="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur rounded-full text-xs font-bold text-gray-900 shadow-sm">
+                            ${trade.pair || 'XAU/USD'}
+                        </div>
+                        <div class="absolute top-3 right-3 px-3 py-1 ${typeColor} rounded-full text-xs font-bold shadow-sm">
+                            ${(trade.type || 'BUY').toUpperCase()}
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-medium text-gray-500"><i class="ph ph-clock mr-1"></i>${trade.time || 'Just now'}</span>
+                            <span class="px-2 py-1 bg-brand-50 text-brand-600 text-[10px] font-bold rounded uppercase tracking-wider">Active</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="bg-gray-50 rounded-xl p-2 text-center border border-gray-100">
+                                <span class="block text-[9px] text-gray-400 uppercase font-bold mb-0.5">Entry</span>
+                                <span class="block text-sm font-display font-bold text-gray-900">${trade.entry || '0.000'}</span>
+                            </div>
+                            <div class="bg-green-50 rounded-xl p-2 text-center border border-green-100">
+                                <span class="block text-[9px] text-green-600/70 uppercase font-bold mb-0.5">Target</span>
+                                <span class="block text-sm font-display font-bold text-green-700">${trade.tp || '0.000'}</span>
+                            </div>
+                            <div class="bg-red-50 rounded-xl p-2 text-center border border-red-100">
+                                <span class="block text-[9px] text-red-600/70 uppercase font-bold mb-0.5">Stoploss</span>
+                                <span class="block text-sm font-display font-bold text-red-700">${trade.sl || '0.000'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            box.innerHTML = html;
+        });
+
+        // 4. Binary History
+        onValue(ref(db, 'binary_results'), (snapshot) => {
+            const data = snapshot.val();
+            const box = document.getElementById('history-binary-list');
+            
+            if (!data) {
+                box.innerHTML = `<p class="text-center text-sm text-gray-400 py-10">No history available yet.</p>`;
+                return;
+            }
+
+            // Convert object to array, sort by time roughly
+            const arr = Object.values(data).reverse().slice(0, 20); // Top 20
+            let html = '';
+            
+            arr.forEach(item => {
+                const isWin = item.result === 'WIN';
+                html += `
+                <div class="bg-white p-4 rounded-[20px] shadow-sm border border-gray-100 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
+                            <i class="ph-fill ph-currency-circle-dollar text-xl text-gray-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-display font-bold text-gray-900 text-sm">${item.pair || 'Asset'}</h4>
+                            <p class="text-xs text-gray-400">${item.time || 'Recent'} • ${item.duration || '-'}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-bold ${isWin ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                            ${isWin ? 'WIN' : 'LOSS'}
+                        </span>
+                        <p class="text-[10px] text-gray-400 font-semibold mt-1">${item.direction || ''}</p>
+                    </div>
+                </div>`;
+            });
+            box.innerHTML = html;
+        });
+
+        // 5. Forex History
+        onValue(ref(db, 'forex_signals/history'), (snapshot) => {
+            const data = snapshot.val();
+            const box = document.getElementById('history-forex-list');
+            
+            if (!data) {
+                box.innerHTML = `<p class="text-center text-sm text-gray-400 py-10">No closed trades yet.</p>`;
+                return;
+            }
+
+            const arr = Object.values(data).reverse().slice(0, 15);
+            let html = '';
+            
+            arr.forEach(trade => {
+                const isWin = trade.result === 'WIN' || trade.result === 'TP HIT';
+                html += `
+                <div class="bg-white rounded-[20px] p-4 shadow-sm border border-gray-100 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-${isWin ? 'green' : 'red'}-500"></div>
+                    <div class="flex justify-between items-start mb-3 pr-4">
+                        <div>
+                            <h4 class="font-display font-bold text-gray-900">${trade.pair || 'Pair'} <span class="text-xs font-normal text-gray-500 ml-1">(${trade.type || 'BUY'})</span></h4>
+                            <p class="text-xs text-gray-400">${trade.date || 'Recently'}</p>
+                        </div>
+                        <span class="px-2 py-1 rounded bg-${isWin ? 'green' : 'red'}-50 text-${isWin ? 'green' : 'red'}-700 text-xs font-bold">
+                            ${trade.result || 'CLOSED'}
+                        </span>
+                    </div>
+                    <div class="flex gap-4 text-sm pr-4">
+                        <div>
+                            <span class="text-[10px] text-gray-400 uppercase font-bold">Entry</span>
+                            <p class="font-medium text-gray-800">${trade.entry || '-'}</p>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-gray-400 uppercase font-bold">Closed At</span>
+                            <p class="font-medium text-${isWin ? 'green' : 'red'}-600">${trade.close_price || trade.tp || '-'}</p>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            box.innerHTML = html;
+        });
+
+        // 6. Community Updates
+        onValue(ref(db, 'community_updates'), (snapshot) => {
+            const data = snapshot.val();
+            const box = document.getElementById('communityFeedBox');
+            
+            if (!data) {
+                box.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 text-center">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="ph-fill ph-newspaper text-2xl text-gray-400"></i>
+                        </div>
+                        <h3 class="font-display font-semibold text-gray-600">No News Yet</h3>
+                        <p class="text-sm text-gray-400 mt-1">Admin will post community updates here.</p>
+                    </div>`;
+                return;
+            }
+
+            const arr = Object.values(data).reverse(); // Latest first
+            let html = '';
+            
+            arr.forEach(post => {
+                html += `
+                <div class="bg-white rounded-premium overflow-hidden shadow-sm border border-gray-100">
+                    <!-- Author Header -->
+                    <div class="p-4 flex items-center gap-3">
+                        <img src="https://www.appcreator24.com/srv/imgs/gen/4005906_ico.png?v=3" class="w-10 h-10 rounded-full bg-gray-100">
+                        <div>
+                            <h4 class="font-display font-semibold text-gray-900 text-sm">Forexio Official <i class="ph-fill ph-seal-check text-blue-500 ml-0.5"></i></h4>
+                            <p class="text-[10px] text-gray-400">${post.date || ''} • ${post.time || ''}</p>
+                        </div>
+                    </div>
+                    <!-- Image -->
+                    ${post.image ? `<img src="${post.image}" class="w-full h-48 object-cover bg-gray-50">` : ''}
+                    <!-- Content -->
+                    <div class="p-4">
+                        <h3 class="font-display font-bold text-gray-900 mb-1">${post.title || ''}</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">${post.description || ''}</p>
+                        ${post.button_link ? `
+                            <a href="${post.button_link}" class="mt-4 block w-full py-3 bg-brand-50 text-brand-600 text-center rounded-xl font-semibold text-sm hover:bg-brand-100 transition-colors">
+                                ${post.button_text || 'View More'}
+                            </a>
+                        ` : ''}
+                    </div>
+                </div>`;
+            });
+            box.innerHTML = html;
+        });
+
+        // 7. Dynamic Notice Text Override
+        onValue(ref(db, 'notice/text'), (snapshot) => {
+            const text = snapshot.val();
+            if (text) {
+                document.getElementById('noticeText').innerText = text;
+            }
+        });
+
+    </script>
+</body>
+</html>
